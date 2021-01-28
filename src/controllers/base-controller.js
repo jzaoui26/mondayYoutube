@@ -15,45 +15,134 @@ function getFieldDefs(req, res) {
   console.log('getFieldDefs', JSON.stringify(req.body));
 
   return res.status(200).send([
+
     { id: 'url', title: 'URL', outboundType: 'text', inboundTypes: ['text'] },
-    { id: 'views', title: 'Views', outboundType: 'numeric', inboundTypes: ['numeric'] },
-    { id: 'likes', title: 'Likes', outboundType: 'numeric', inboundTypes: ['numeric'] },
-    { id: 'unlikes', title: 'Unlikes', outboundType: 'numeric', inboundTypes: ['numeric']  },
+    /*{ id: 'viewCount', title: 'View count', outboundType: 'numeric', inboundTypes: ['numeric'] },
+    { id: 'likeCount', title: 'Like count', outboundType: 'numeric', inboundTypes: ['numeric'] },
+    { id: 'unlikeCount', title: 'Unlike count', outboundType: 'numeric', inboundTypes: ['numeric']  },*/
   ]);
 }
 
-function subscribeStatistic(req, res) {
-  console.log('subscribeScheduled', JSON.stringify(req.body));
+function subscribeUpdate(req, res) {
+
+  console.log('subscribeUpdate', JSON.stringify(req.body));
   const {
     payload: {
       inputFields: {
-        dateTriggerConfig: { offset, hour, utcDaysDiff, timezone },
+
       },
       webhookUrl,
     },
   } = req.body;
 
+   console.log('blblbl '+ webhookUrl);
 
-  const intervalId =  1;
+  baseService.fetchTest(webhookUrl);
+
+  const intervalId = baseService.getRandomInt(5000);;
+
 
   return res.status(200).send({ webhookId: intervalId });
 }
 
-function unsubscribeStatistic(req, res) {
-  console.log('unsubscribeStatistic', JSON.stringify(req.body));
+function subscribeUpdate(req, res) {
+
+  console.log('subscribeUpdate', JSON.stringify(req.body));
+  const {
+    payload: {
+      inputFields: {
+
+      },
+      webhookUrl,
+    },
+  } = req.body;
+
+   console.log('blblbl '+ webhookUrl);
+
+  baseService.fetchTest(webhookUrl);
+
+  const intervalId = baseService.getRandomInt(5000);;
+
+
+  return res.status(200).send({ webhookId: intervalId });
+}
+
+function ticketSubscribe(req, res) {
+
+  console.log('ticketSubscribe', JSON.stringify(req.body));
+  const {
+    payload: {
+      inputFields: {
+
+      },
+      webhookUrl,
+    },
+  } = req.body;
+
+  console.log('blblbl '+ webhookUrl);
+
+  baseService.fetchTest(webhookUrl);
+
+  const intervalId = baseService.getRandomInt(5000);;
+
+
+  return res.status(200).send({ webhookId: intervalId });
+}
+
+function unsubscribeUpdate(req, res) {
+  console.log('subscribeUpdate', JSON.stringify(req.body));
 
   const {
     payload: { webhookId },
   } = req.body;
 
-  baseService.removeStatTrigger(webhookId);
 
   return res.status(200).send({ result: 'Thanks for stopping me!' });
 }
 
+
+function ticketUnsubscribe(req, res) {
+  console.log('subscribeUpdate', JSON.stringify(req.body));
+
+  const {
+    payload: { webhookId },
+  } = req.body;
+
+
+  return res.status(200).send({ result: 'Thanks for stopping me!' });
+}
+
+function updateStatistic(req, res) {
+  console.log('updateStatistic', JSON.stringify(req.body));
+  console.log(req.toString());
+
+
+  return res.status(200).send({ result: 'Thanks for stopping me!' });
+}
+
+function updateStatFinal(req, res) {
+  console.log('updateStatFinal', JSON.stringify(req.body));
+  console.log(req.toString());
+
+
+  return res.status(200).send({ result: 'Thanks for stopping me!' });
+}
+
+function fetchTest() {
+  baseService.fetchTest();
+
+
+
+}
+
+
 module.exports = {
-  updateStatistic,
   getFieldDefs,
-  subscribeStatistic,
-  unsubscribeStatistic,
+  subscribeUpdate,
+  unsubscribeUpdate,
+  updateStatistic,
+  updateStatFinal,
+  ticketSubscribe,
+  ticketUnsubscribe,
+  fetchTest
 };
