@@ -87,7 +87,7 @@ const changeMultipleColumnValues = async (token, boardId, itemId, columnValues) 
 
     const query = `mutation change_multiple_column_values   {
         change_multiple_column_values (board_id: ${boardId}, item_id: ${itemId}, column_values: ${columnValues}) {
-          id
+          id 
         }
       }
       `;

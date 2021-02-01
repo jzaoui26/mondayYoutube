@@ -3,7 +3,6 @@ const router = express.Router();
 
 const baseController = require('../controllers/base-controller.js');
 const authenticationMiddleware = require('../middlewares/authentication').authenticationMiddleware;
-console.log('route iccii');
 
 /*
 router.post('/updateEntityStats', authenticationMiddleware, baseController.updateStatistic);
