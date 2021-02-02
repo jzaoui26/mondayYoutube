@@ -33,7 +33,7 @@ async function  updateColumns(webpageData) {
 
   await mondayService.changeColumnValue(shortLivedToken, boardId, itemId, columnId, columnValue);
 }
-
+ 
 async function updateFields(req, res) {
   const { shortLivedToken } = req.session;
   let columnValues;
