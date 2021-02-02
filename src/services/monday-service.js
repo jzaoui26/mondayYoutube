@@ -20,6 +20,31 @@ const getColumnValue = async (token, itemId, columnId) => {
   }
 };
 
+const getColumnsValuesColumn = async (token, boardId, columnId) => {
+  try {
+    const mondayClient = initMondayClient();
+    mondayClient.setToken(token);
+
+    const query = `query{
+        boards ( ids: ${boardId}) {
+      
+          items  {
+            id
+            column_values (ids:${columnId}){
+              value
+                  }
+              } 
+            }
+      }
+      `;
+
+    const response = await mondayClient.api(query, {  });
+    return response.data.boards[0].items;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const getColumnsBoard = async (token, boardId) => {
   try {
     const mondayClient = initMondayClient();
@@ -72,7 +97,7 @@ const changeColumnValue = async (token, boardId, itemId, columnId, value) => {
       }
       `;
 
-    console.log('query '+query)
+
 
     const response = await mondayClient.api(query, {  });
     return response;
@@ -91,7 +116,7 @@ const changeMultipleColumnValues = async (token, boardId, itemId, columnValues) 
         }
       }
       `;
-    console.log('query '+query)
+
     const response = await mondayClient.api(query, {  });
     return response;
   } catch (err) {
@@ -103,5 +128,6 @@ module.exports = {
   changeColumnValue,
   changeMultipleColumnValues,
   getColumnsBoard,
-  getItemId
+  getItemId,
+  getColumnsValuesColumn
 };

@@ -27,16 +27,43 @@ async function callYoutubeAPI(youtubeVideoId) {
   return webpageData;
 }
 
-async function  updateColumns(webpageData) {
-  // update
-  if(!webpageData.viewCount) return;
-
-  await mondayService.changeColumnValue(shortLivedToken, boardId, itemId, columnId, columnValue);
-}
- 
-async function updateFields(req, res) {
-  const { shortLivedToken } = req.session;
+async function updateItemStats(shortLivedToken, boardId, itemId, columnValueUrlVal, columnIdView, columnIdLike, columnIdDislike)
+{
   let columnValues;
+
+  // verify
+  if(columnValueUrlVal == '')
+  {
+    columnValues = JSON.stringify(`{"${columnIdView}":"", "${columnIdLike}":"", "${columnIdDislike}":""}`);
+
+    await mondayService.changeMultipleColumnValues(shortLivedToken, boardId, itemId, columnValues);
+
+    return true;
+  }
+
+  // get youtube ID
+  const youtubeVideoId = baseService.getYoutubeId(columnValueUrlVal);
+
+  // verification
+  if(youtubeVideoId == '') return true;
+
+  // call youtube API
+  const webpageData = await callYoutubeAPI(youtubeVideoId);
+
+  // update
+  if(webpageData.viewCount == null) return false;
+
+  // update column value
+  columnValues = JSON.stringify(`{"${columnIdView}":"${webpageData.viewCount}", "${columnIdLike}":"${webpageData.likeCount}", "${columnIdDislike}":"${webpageData.dislikeCount}"}`);
+
+  // update
+  await mondayService.changeMultipleColumnValues(shortLivedToken, boardId, itemId, columnValues);
+
+  return true;
+}
+
+async function updateItem(req, res) {
+  const { shortLivedToken } = req.session;
 
   const {
     payload: {
@@ -49,40 +76,50 @@ async function updateFields(req, res) {
   // value URL
   const columnValueUrlVal = req.body.payload.inboundFieldValues.columnValueUrl ? req.body.payload.inboundFieldValues.columnValueUrl.value : '';
 
-  // verify
-  if(columnValueUrlVal == '')
-  {
-    columnValues = JSON.stringify(`{"${columnIdView}":"", "${columnIdLike}":"", "${columnIdDislike}":""}`);
-
-    await mondayService.changeMultipleColumnValues(shortLivedToken, boardId, itemId, columnValues);
-
-    return res.status(200).send({ result: 'Ok!' });
-  }
-
-  // get youtube ID
-  const youtubeVideoId = baseService.getYoutubeId(columnValueUrlVal);
-
-  // verification
-  if(youtubeVideoId == '') return res.status(200).send({ result: 'Ok!' });
-
-  // call youtube API
-  const webpageData = await callYoutubeAPI(youtubeVideoId);
-
-  // update
-  if(webpageData.viewCount == null) return res.status(200).send({ result: 'NOk!' });
-
-  // update column value
-  columnValues = JSON.stringify(`{"${columnIdView}":"${webpageData.viewCount}", "${columnIdLike}":"${webpageData.likeCount}", "${columnIdDislike}":"${webpageData.dislikeCount}"}`);
-
-  // update
-  await mondayService.changeMultipleColumnValues(shortLivedToken, boardId, itemId, columnValues);
+  await updateItemStats(shortLivedToken, boardId, itemId, columnValueUrlVal, columnIdView, columnIdLike, columnIdDislike)
 
   return res.status(200).send({ result: 'Ok!' });
 }
 
 
+async function updateBoard(req, res) {
+  const { shortLivedToken } = req.session;
+  let columnValOne;
+  let itemId, columnValueUrlVal
+
+  const {
+    payload: {
+      inboundFieldValues: {
+        boardId,  columnIdUrl, columnIdView, columnIdLike, columnIdDislike
+      }
+    }
+  } = req.body;
+
+  // get element items of the boards
+  const columnsValues = await mondayService.getColumnsValuesColumn(shortLivedToken, boardId, columnIdUrl);
+
+  for(columnsKey in columnsValues)
+  {
+    columnValOne      = columnsValues[columnsKey]
+
+    // values
+    itemId            = columnValOne.id
+    columnValueUrlVal = JSON.parse(columnValOne.column_values[0].value)
+
+    // exists
+    if(columnValueUrlVal != null)
+    {
+      // update
+      await updateItemStats(shortLivedToken, boardId, itemId, columnValueUrlVal, columnIdView, columnIdLike, columnIdDislike)
+    }
+  }
+
+  return res.status(200).send({ result: 'Ok!' });
+}
+
 
 module.exports = {
   getFieldDefs,
-  updateFields
+  updateItem,
+  updateBoard
 };
