@@ -30,7 +30,7 @@ const getColumnsValuesColumn = async (token, boardId, columnId) => {
       
           items  {
             id
-            column_values (ids:${columnId}){
+            column_values (ids:"${columnId}"){
               value
                   }
               } 
